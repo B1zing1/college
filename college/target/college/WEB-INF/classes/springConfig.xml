@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+            http://www.springframework.org/schema/tx 
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://cxf.apache.org/jaxws
+            http://cxf.apache.org/schemas/jaxws.xsd
+            ">
+
+    <jaxws:client id="phone" address="http://ws.webxml.com.cn/WebServices/MobileCodeWS.asmx?wsdl"
+                  serviceClass="cn.com.webxml.MobileCodeWSSoap"></jaxws:client>
+
+    <jaxws:client id="weather" address="http://ws.webxml.com.cn/WebServices/WeatherWS.asmx?wsdl"
+                  serviceClass="cn.com.webxml.WeatherWSSoap"></jaxws:client>
+
+    <!--注解扫描-->
+    <context:component-scan base-package="com"/>
+
+    <!--视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--注解驱动-->
+    <mvc:annotation-driven/>
+    <!--放行静态资源-->
+    <!--<mvc:default-servlet-handler/>-->
+    <!--配置静态资源-->
+    <mvc:resources mapping="/css/**" location="/css/"></mvc:resources>
+    <mvc:resources mapping="/dtree/**" location="/dtree/"></mvc:resources>
+    <mvc:resources mapping="/Images/**" location="/Images/"></mvc:resources>
+    <mvc:resources mapping="/img/**" location="/img/"></mvc:resources>
+    <mvc:resources mapping="/Script/**" location="/Script/"></mvc:resources>
+    <mvc:resources mapping="/Style/**" location="/Style/"></mvc:resources>
+
+    <!--数据库连接信息-->
+    <bean id="db" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/college"/>
+        <property name="user" value="root"/>
+        <property name="password" value="bazinga"/>
+    </bean>
+
+    <bean id="factory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="db"></property>
+        <property name="mapperLocations" value="classpath:/mapper/*.xml"></property>
+        <property name="configLocation" value="classpath:mybatisConfig.xml"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.dao"/>
+        <property name="sqlSessionFactory" ref="factory"/>
+    </bean>
+
+    <!--<bean id="temp" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="factory"></constructor-arg>
+    </bean>-->
+    <!--配置事务-->
+    <bean id="tx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="db"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="tx"/>
+
+    <!--文件上传下载-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8"></property>
+        <property name="maxUploadSize" value="10485760"></property>
+    </bean>
+
+    <!--activiti配置-->
+    <bean id="process" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="db"/>
+        <property name="transactionManager" ref="tx"/>
+        <property name="databaseSchemaUpdate" value="true"/>
+    </bean>
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="process"/>
+    </bean>
+
+    <!--创建流程服务-->
+    <bean id="repositorService" factory-bean="processEngine" factory-method="getRepositoryService"></bean>
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"></bean>
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"></bean>
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService"></bean>
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"></bean>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

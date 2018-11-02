@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ClassMapper">
+  <resultMap id="BaseResultMap" type="com.bean.Class">
+    <id column="classid" jdbcType="INTEGER" property="classid" />
+    <result column="classnum" jdbcType="VARCHAR" property="classnum" />
+    <result column="deptid" jdbcType="INTEGER" property="deptid" />
+    <result column="majorid" jdbcType="INTEGER" property="majorid" />
+    <result column="classname" jdbcType="VARCHAR" property="classname" />
+    <result column="classbegin" jdbcType="DATE" property="classbegin" />
+    <result column="classend" jdbcType="DATE" property="classend" />
+    <result column="classcontent" jdbcType="VARCHAR" property="classcontent" />
+    <result column="classqq" jdbcType="VARCHAR" property="classqq" />
+    <result column="tagline" jdbcType="VARCHAR" property="tagline" />
+    <result column="classteacher" jdbcType="VARCHAR" property="classteacher" />
+    <result column="peoplecount" jdbcType="INTEGER" property="peoplecount" />
+    <result column="classstate" jdbcType="VARCHAR" property="classstate" />
+    <result column="auditcount" jdbcType="INTEGER" property="auditcount" />
+    <association property="department" javaType="com.bean.Department">
+      <id column="departid" jdbcType="INTEGER" property="departid" />
+      <result column="departname" jdbcType="VARCHAR" property="departname" />
+    </association>
+    <association property="major" javaType="com.bean.Major">
+      <id column="majorid" jdbcType="INTEGER" property="majorid" />
+      <result column="majorname" jdbcType="VARCHAR" property="majorname" />
+    </association>
+  </resultMap>
+
+
+  <!--查询所有班级信息-->
+  <select id="findAllClass" resultMap="BaseResultMap" parameterType="String">
+    select * from department d,classes c WHERE d.departid=c.deptid
+      <if test="classname != null">
+        and c.classname like '%${classname}%'
+      </if>
+    <if test="classids != null">
+      and c.classid in (
+      <foreach collection="classids" item="classid" separator=",">
+        #{classid}
+      </foreach>
+      )
+    </if>
+    <if test="classstate != null">
+      and c.classstate like '%${classstate}%'
+    </if>
+  </select>
+
+  <!--查询指定班级信息-->
+  <select id="findClassById" resultMap="BaseResultMap">
+    select * from classes c,department d,major m WHERE c.deptid=d.departid and c.majorid=m.majorid
+    and c.classid=#{classid}
+  </select>
+
+
+  <!--根据专业id查询指定班级信息-->
+  <select id="findClassByMajorid" resultMap="BaseResultMap">
+   select * from classes c,major m WHERE c.majorid=m.majorid and m.majorid=#{majorid}
+  </select>
+
+
+  <sql id="Base_Column_List">
+    classid, classnum, deptid, majorid, classname, classbegin, classend, classcontent, 
+    classqq, tagline, classteacher, peoplecount, classstate
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from classes
+    where classid = #{classid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from classes
+    where classid = #{classid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bean.Class">
+    insert into classes (classid, classnum, deptid, 
+      majorid, classname, classbegin, 
+      classend, classcontent, classqq, 
+      tagline, classteacher, peoplecount,
+      classstate)
+    values (#{classid,jdbcType=INTEGER}, #{classnum,jdbcType=VARCHAR}, #{deptid,jdbcType=INTEGER}, 
+      #{majorid,jdbcType=INTEGER}, #{classname,jdbcType=VARCHAR}, #{classbegin,jdbcType=DATE}, 
+      #{classend,jdbcType=DATE}, #{classcontent,jdbcType=VARCHAR}, #{classqq,jdbcType=VARCHAR}, 
+      #{tagline,jdbcType=VARCHAR}, #{classteacher,jdbcType=VARCHAR}, #{peoplecount,jdbcType=INTEGER}, 
+      #{classstate,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bean.Class">
+    insert into classes
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="classid != null">
+        classid,
+      </if>
+      <if test="classnum != null">
+        classnum,
+      </if>
+      <if test="deptid != null">
+        deptid,
+      </if>
+      <if test="majorid != null">
+        majorid,
+      </if>
+      <if test="classname != null">
+        classname,
+      </if>
+      <if test="classbegin != null">
+        classbegin,
+      </if>
+      <if test="classend != null">
+        classend,
+      </if>
+      <if test="classcontent != null">
+        classcontent,
+      </if>
+      <if test="classqq != null">
+        classqq,
+      </if>
+      <if test="tagline != null">
+        tagline,
+      </if>
+      <if test="classteacher != null">
+        classteacher,
+      </if>
+      <if test="peoplecount != null">
+        peoplecount,
+      </if>
+      <if test="classstate != null">
+        classstate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="classid != null">
+        #{classid,jdbcType=INTEGER},
+      </if>
+      <if test="classnum != null">
+        #{classnum,jdbcType=VARCHAR},
+      </if>
+      <if test="deptid != null">
+        #{deptid,jdbcType=INTEGER},
+      </if>
+      <if test="majorid != null">
+        #{majorid,jdbcType=INTEGER},
+      </if>
+      <if test="classname != null">
+        #{classname,jdbcType=VARCHAR},
+      </if>
+      <if test="classbegin != null">
+        #{classbegin,jdbcType=DATE},
+      </if>
+      <if test="classend != null">
+        #{classend,jdbcType=DATE},
+      </if>
+      <if test="classcontent != null">
+        #{classcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="classqq != null">
+        #{classqq,jdbcType=VARCHAR},
+      </if>
+      <if test="tagline != null">
+        #{tagline,jdbcType=VARCHAR},
+      </if>
+      <if test="classteacher != null">
+        #{classteacher,jdbcType=VARCHAR},
+      </if>
+      <if test="peoplecount != null">
+        #{peoplecount,jdbcType=INTEGER},
+      </if>
+      <if test="classstate != null">
+        #{classstate,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bean.Class">
+    update classes
+    <set>
+      <if test="classnum != null">
+        classnum = #{classnum,jdbcType=VARCHAR},
+      </if>
+      <if test="deptid != null">
+        deptid = #{deptid,jdbcType=INTEGER},
+      </if>
+      <if test="majorid != null">
+        majorid = #{majorid,jdbcType=INTEGER},
+      </if>
+      <if test="classname != null">
+        classname = #{classname,jdbcType=VARCHAR},
+      </if>
+      <if test="classbegin != null">
+        classbegin = #{classbegin,jdbcType=DATE},
+      </if>
+      <if test="classend != null">
+        classend = #{classend,jdbcType=DATE},
+      </if>
+      <if test="classcontent != null">
+        classcontent = #{classcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="classqq != null">
+        classqq = #{classqq,jdbcType=VARCHAR},
+      </if>
+      <if test="tagline != null">
+        tagline = #{tagline,jdbcType=VARCHAR},
+      </if>
+      <if test="classteacher != null">
+        classteacher = #{classteacher,jdbcType=VARCHAR},
+      </if>
+      <if test="peoplecount != null">
+        peoplecount = #{peoplecount,jdbcType=INTEGER},
+      </if>
+      <if test="classstate != null">
+        classstate = #{classstate,jdbcType=VARCHAR},
+      </if>
+      <if test="auditcount != 0 and auditcount != null">
+      auditcount = #{auditcount,jdbcType=INTEGER},
+    </if>
+    </set>
+    where classid = #{classid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bean.Class">
+    update classes
+    set classnum = #{classnum,jdbcType=VARCHAR},
+      deptid = #{deptid,jdbcType=INTEGER},
+      majorid = #{majorid,jdbcType=INTEGER},
+      classname = #{classname,jdbcType=VARCHAR},
+      classbegin = #{classbegin,jdbcType=DATE},
+      classend = #{classend,jdbcType=DATE},
+      classcontent = #{classcontent,jdbcType=VARCHAR},
+      classqq = #{classqq,jdbcType=VARCHAR},
+      tagline = #{tagline,jdbcType=VARCHAR},
+      classteacher = #{classteacher,jdbcType=VARCHAR},
+      peoplecount = #{peoplecount,jdbcType=INTEGER},
+      classstate = #{classstate,jdbcType=VARCHAR}
+    where classid = #{classid,jdbcType=INTEGER}
+  </update>
+</mapper>
